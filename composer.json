@@ -1,13 +1,13 @@
 {
-    "name": "megumiteam/woocommerce-elasticsearch",
-    "description": “Woocommerce search replace Elasticsearch”,
-    "authors": [
+    ‘name’: ‘megumiteam/woocommerce-elasticsearch’,
+    ‘description’: ‘Woocommerce search replace Elasticsearch’,
+    ‘authors’: [
         {
-            "name": “Takahiro Horike”,
-            "email": “info@digitalcube.jp”
+            ‘name’: ‘Takahiro Horike’,
+            ‘email’: ‘info@digitalcube.jp’
         }
     ],
-    "require": {
-        "ruflin/elastica": "dev-master"
+    ‘require’: {
+        ‘ruflin/elastica’: ‘dev-master’
     }
 }
