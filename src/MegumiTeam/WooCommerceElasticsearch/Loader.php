@@ -17,6 +17,29 @@ use Elastica\Bulk;
 class Loader {
 	private static $instance;
 	private function __construct() {}
+	
+	
+	/**
+	 * Magic Method
+	 *
+	 * @since 0.1
+	 */
+	public function __get($key){
+		if ( $key === 'index' ) {
+			$url = parse_url(home_url());
+			if ( $url ) {
+				return $url['host'];
+			}
+		}
+
+		if ( $key === 'type' ) {
+			return 'product';
+		}
+
+		if  ( $key === 'client' ) {
+			return $this->_create_client();
+		}
+	}
 
 	/**
 	 * Return a singleton instance of the current class
@@ -44,16 +67,26 @@ class Loader {
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
 	}
 	
+	/**
+	 * admin_menu action hook.
+	 *
+	 * @since 0.1
+	 */
 	public function admin_menu() {
 		add_options_page( 
-			'WP Elasticsearch',
-			'WP Elasticsearch',
+			'Woocommerce Elasticsearch',
+			'Woocommerce Elasticsearch',
 			'manage_options',
 			'wp_elasticsearch',
 			array( $this, 'options_page' )
 		);
 	}
 	
+	/**
+	 * admin_init action hook. setting api.
+	 *
+	 * @since 0.1
+	 */
 	public function register_setting() {
 		register_setting( 'wpElasticsearch', 'wpels_settings' );
 		add_settings_section(
@@ -71,22 +104,37 @@ class Loader {
 		);
 	}
 
-	function endpoint_render() {
+	/**
+	 * render.
+	 *
+	 * @since 0.1
+	 */
+	public function endpoint_render() {
 		$options = get_option( 'wpels_settings' );
 		?>
 		<input type='text' name='wpels_settings[endpoint]' value='<?php echo $options['endpoint']; ?>'>
 		<?php
 	}
 
-	function section_callback() {
+	/**
+	 * section_callback.
+	 *
+	 * @since 0.1
+	 */
+	public function section_callback() {
 		echo __( '', 'wp-elasticsearch' );
 	}
 
-	function options_page() {
+	/**
+	 * rendr options_page.
+	 *
+	 * @since 0.1
+	 */
+	public function options_page() {
 		?>
 		<form action='options.php' method='post'>
 			
-			<h2>WP Elasticsearch</h2>
+			<h2>Woocommerce Elasticsearch</h2>
 			<?php
 			settings_fields( 'wpElasticsearch' );
 			do_settings_sections( 'wpElasticsearch' );
@@ -136,20 +184,11 @@ class Loader {
 	 */
 	private function _data_sync() {
 		try {
+			$client = $this->_create_client();
 
-			$options = get_option( 'wpels_settings' );
-			$client = $this->_create_client( $options );
-			if ( !$client ) {
-				throw new Exception( 'Couldn\'t make Elasticsearch Client. Parameter is not enough.' );
-			}
-
-			$url = parse_url(home_url());
-			if ( !$url ) {
-				throw new Exception( 'home_url() is disabled.' );
-			}
-			$index = $client->getIndex( $url['host'] );
+			$index = $client->getIndex( $this->index );
 			$index->create( array(), true );
-			$type = $index->getType( 'product' );
+			$type = $index->getType( $this->type );
 
 			$mapping = array(
 							'post_title' => array(
@@ -191,7 +230,8 @@ class Loader {
 	 * @return Client client object
 	 * @since 0.1
 	 */
-	private function _create_client( $options ) {
+	private function _create_client() {
+		$options = get_option( 'wpels_settings' );
 		if ( empty( $options['endpoint'] ) ) {
 			return false;
 		}
@@ -201,11 +241,6 @@ class Loader {
 			'port' => 80,
 		));
 		return $client;
-	}
-	
-	public function get_client() {
-		$options = get_option( 'wpels_settings' );
-		return $this->_create_client( $options );
 	}
 }
 
