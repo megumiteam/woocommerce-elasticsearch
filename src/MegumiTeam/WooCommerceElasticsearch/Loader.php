@@ -9,7 +9,6 @@
  **/
 
 namespace MegumiTeam\WooCommerceElasticsearch;
-//require_once 'vendor/autoload.php';
 
 use Elastica\Client;
 use Elastica\Type\Mapping;
