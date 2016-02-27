@@ -8,7 +8,7 @@
  * Domain Path: /languages
  **/
 
-namespace MegumiTeam\WooComerceElasticsearch;
+namespace WooComerceElasticsearch;
 //require_once 'vendor/autoload.php';
 
 use Elastica\Client;
