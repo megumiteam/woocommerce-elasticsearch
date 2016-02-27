@@ -8,16 +8,14 @@
  * Domain Path: /languages
  **/
 
-require_once 'admin/option.php';
-require_once 'vendor/autoload.php';
+namespace MegumiTeam\WooComerceElasticsearch;
+//require_once 'vendor/autoload.php';
 
 use Elastica\Client;
-use Elastica\Query;
-use Elastica\Query\QueryString;
 use Elastica\Type\Mapping;
 use Elastica\Bulk;
 
-class WP_Elasticsearch {
+class Loader {
 	private static $instance;
 	private function __construct() {}
 
@@ -42,11 +40,64 @@ class WP_Elasticsearch {
 	 */
 	public function init() {
 		add_action( 'add_option', array( $this, 'data_sync' ) );
-		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
-		add_filter( 'wpels_search', array( $this, 'search' ) );
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'register_setting' ) );
+	}
+	
+	public function admin_menu() {
+		add_options_page( 
+			'WP Elasticsearch',
+			'WP Elasticsearch',
+			'manage_options',
+			'wp_elasticsearch',
+			array( $this, 'options_page' )
+		);
+	}
+	
+	public function register_setting() {
+		register_setting( 'wpElasticsearch', 'wpels_settings' );
+		add_settings_section(
+			'wpels_wpElasticsearch_section',
+			__( '', 'wp-elasticsearch' ),
+			array( $this, 'section_callback' ),
+			'wpElasticsearch'
+		);
+		add_settings_field(
+			'endpoint',
+			__( 'Endpoint', 'wp-elasticsearch' ),
+			array( $this, 'endpoint_render' ),
+			'wpElasticsearch',
+			'wpels_wpElasticsearch_section'
+		);
 	}
 
+	function endpoint_render() {
+		$options = get_option( 'wpels_settings' );
+		?>
+		<input type='text' name='wpels_settings[endpoint]' value='<?php echo $options['endpoint']; ?>'>
+		<?php
+	}
+
+	function section_callback() {
+		echo __( '', 'wp-elasticsearch' );
+	}
+
+	function options_page() {
+		?>
+		<form action='options.php' method='post'>
+			
+			<h2>WP Elasticsearch</h2>
+			<?php
+			settings_fields( 'wpElasticsearch' );
+			do_settings_sections( 'wpElasticsearch' );
+			submit_button();
+			?>
+			
+		</form>
+		<?php
+	}
+	
 	/**
 	 * save_post action. Sync Elasticsearch.
 	 *
@@ -60,59 +111,6 @@ class WP_Elasticsearch {
 				$message = array_shift( $ret->get_error_messages( 'Elasticsearch Mapping Error' ) );
 				wp_die($message);
 			}
-		}
-	}
-
-	/**
-	 * pre_get_posts action. search replace Elasticsearch query.
-	 *
-	 * @param $query
-	 * @since 0.1
-	 */
-	public function pre_get_posts( $query ) {
-		if ( $query->is_search() && $query->is_main_query() ) {
-			$search_query = get_search_query();
-			$post_ids = apply_filters( 'wpels_search', $search_query );
-
-			if ( ! is_wp_error( $post_ids ) ) {
-				$query->set( 'post__in', $post_ids );
-				$query->set( 's', '' );
-			} else {
-				wp_die( 'Elasticsearch Error' );
-			}
-		}
-	}
-
-	/**
-	 * search query to Elasticsearch.
-	 *
-	 * @param $search_query
-	 * @return true or WP_Error object
-	 * @since 0.1
-	 */
-	public function search( $search_query ) {
-		try {
-			$options = get_option( 'wpels_settings' );
-			$client = $this->_create_client( $options );
-			if ( ! $client ) {
-				throw new Exception( 'Couldn\'t make Elasticsearch Client. Parameter is not enough.' );
-			}
-
-			$type = $client->getIndex( $options['index'] )->getType( $options['type'] );
-			$qs = new QueryString();
-			$qs->setQuery( $search_query );
-			$query_es = Query::create( $qs );
-			$resultSet = $type->search( $query_es );
-
-			$post_ids = array();
-			foreach ( $resultSet as $r ) {
-				$post_ids[] = $r->getID();
-			}
-
-			return $post_ids;
-		} catch (Exception $e) {
-			$err = new WP_Error( 'Elasticsearch Search Error', $e->getMessage() );
-			return $err;
 		}
 	}
 
@@ -206,4 +204,4 @@ class WP_Elasticsearch {
 		return $client;
 	}
 }
-WP_Elasticsearch::get_instance()->init();
+
