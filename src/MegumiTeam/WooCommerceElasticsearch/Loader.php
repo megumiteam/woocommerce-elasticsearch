@@ -202,5 +202,10 @@ class Loader {
 		));
 		return $client;
 	}
+	
+	public function get_client() {
+		$options = get_option( 'wpels_settings' );
+		return $this->_create_client( $options );
+	}
 }
 
