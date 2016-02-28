@@ -244,7 +244,7 @@ class Loader {
 	}
 
 	private function _get_term_name_list( $terms ) {
-		if ( ! $terms ) {
+		if ( ! $terms || is_wp_error( $terms ) ) {
 			return;
 		}
 
