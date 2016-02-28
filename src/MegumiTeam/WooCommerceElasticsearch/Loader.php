@@ -186,6 +186,9 @@ class Loader {
 	private function _data_sync() {
 		try {
 			$client = $this->_create_client();
+			if ( ! $client ) {
+				throw new Exception( 'Couldn\'t make Elasticsearch Client. Parameter is not enough.' );
+			}
 
 			$index = $client->getIndex( $this->index );
 
@@ -244,7 +247,7 @@ class Loader {
 		if ( ! $terms ) {
 			return;
 		}
-		
+
 		$term_name_list = array();
 		foreach ( $terms as $key => $value ) {
 			$term_name_list[] = $value->name;
@@ -262,9 +265,13 @@ class Loader {
 	private function _create_client() {
 		$options = get_option( 'wpels_settings' );
 		if ( !isset( $options['endpoint'] ) ) {
-			return false;
+			if ( isset( $_POST['wpels_settings']["endpoint"] ) ) {
+				$options['endpoint'] = $_POST['wpels_settings']["endpoint"];
+			} else {
+				return false;
+			}
 		}
-		
+
 		if ( !isset( $options['port'] ) ) {
 			$options['port'] = 80;
 		}
