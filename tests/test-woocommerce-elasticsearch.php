@@ -9,6 +9,7 @@ class WooCommerceElasticsearchTest extends WP_UnitTestCase {
 		
 		$param = array();
 		$param['endpoint'] = ES_HOST;
+		$param['port']     = ES_PORT;
 		add_option( 'wpels_settings', $param);
 		$this->client = MegumiTeam\WooCommerceElasticsearch\Loader::get_instance();
 	}

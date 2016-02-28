@@ -259,13 +259,17 @@ class Loader {
 	 */
 	private function _create_client() {
 		$options = get_option( 'wpels_settings' );
-		if ( empty( $options['endpoint'] ) ) {
+		if ( !isset( $options['endpoint'] ) ) {
 			return false;
+		}
+		
+		if ( !isset( $options['port'] ) ) {
+			$options['port'] = 80;
 		}
 
 		$client = new \Elastica\Client( array(
 			'host' => $options['endpoint'],
-			'port' => 80,
+			'port' => $options['port'],
 		));
 
 		return $client;

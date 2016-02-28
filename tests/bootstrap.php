@@ -11,12 +11,17 @@ function _manually_load_plugin() {
 	
 	$host = getenv( 'ES_HOST' );
 	$host = preg_replace( '/(^https:\/\/|^http:\/\/)/is', '', $host );
+	$port = getenv( 'ES_PORT' );
 
-var_dump($host);
 	if ( empty( $host ) ) {
-		$host = 'localhost:9200';
+		$host = 'localhost';
+	}
+
+	if ( empty( $port ) ) {
+		$port = 9200;
 	}
 	define( 'ES_HOST', $host );
+	define( 'ES_PORT', $port );
 	
 	require dirname( __FILE__ ) . '/../vendor/autoload.php';
 	require dirname( dirname( __FILE__ ) ) . '/src/MegumiTeam/WooCommerceElasticsearch/Loader.php';
@@ -24,8 +29,8 @@ var_dump($host);
 	$tries = 5;
 	$sleep = 3;
 	do {
-		$response = wp_remote_get( esc_url(ES_HOST).':9200' );
-var_dump(esc_url(ES_HOST));
+		$response = wp_remote_get( esc_url(ES_HOST).':'. ES_PORT );
+var_dump(esc_url(ES_HOST).':'. ES_PORT);
 var_dump($response);
 		if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
 			// Looks good!
