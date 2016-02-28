@@ -166,13 +166,14 @@ class Loader {
 	 *
 	 * @since 0.1
 	 */
-	public function data_sync($option) {
+	public function data_sync() {
 		if ( isset( $_POST['wpels_settings']["endpoint"] ) ) {
 			$ret = $this->_data_sync();
 			if ( is_wp_error( $ret ) ) {
 				$message = array_shift( $ret->get_error_messages( 'Elasticsearch Mapping Error' ) );
 				wp_die($message);
 			}
+			return true;
 		}
 	}
 
@@ -187,6 +188,7 @@ class Loader {
 			$client = $this->_create_client();
 
 			$index = $client->getIndex( $this->index );
+
 			$index->create( array(), true );
 			$type = $index->getType( $this->type );
 
@@ -240,6 +242,7 @@ class Loader {
 			'host' => $options['endpoint'],
 			'port' => 80,
 		));
+
 		return $client;
 	}
 }
