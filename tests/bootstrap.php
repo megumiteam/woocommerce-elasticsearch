@@ -12,6 +12,7 @@ function _manually_load_plugin() {
 	$host = getenv( 'ES_HOST' );
 	$host = preg_replace( '/(^https:\/\/|^http:\/\/)/is', '', $host );
 
+var_dump($host);
 	if ( empty( $host ) ) {
 		$host = 'localhost:9200';
 	}
