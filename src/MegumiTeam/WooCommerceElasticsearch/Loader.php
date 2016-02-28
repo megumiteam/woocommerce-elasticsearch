@@ -241,10 +241,10 @@ class Loader {
 	}
 
 	private function _get_term_name_list( $terms ) {
-		if ( ! $terms ) {
+		if ( ! $terms || is_wp_error( $terms ) ) {
 			return;
 		}
-		
+
 		$term_name_list = array();
 		foreach ( $terms as $key => $value ) {
 			$term_name_list[] = $value->name;
