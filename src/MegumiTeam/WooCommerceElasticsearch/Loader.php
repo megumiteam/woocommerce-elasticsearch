@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Woocommerce Elasticsearch 
+ * Plugin Name: Woocommerce Elasticsearch
  * Version: 0.1
  * Description: WordPress search replace Elasticsearch
  * Author: horike
@@ -17,8 +17,8 @@ use Elastica\Bulk;
 class Loader {
 	private static $instance;
 	private function __construct() {}
-	
-	
+
+
 	/**
 	 * Magic Method
 	 *
@@ -66,14 +66,14 @@ class Loader {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
 	}
-	
+
 	/**
 	 * admin_menu action hook.
 	 *
 	 * @since 0.1
 	 */
 	public function admin_menu() {
-		add_options_page( 
+		add_options_page(
 			'Woocommerce Elasticsearch',
 			'Woocommerce Elasticsearch',
 			'manage_options',
@@ -81,7 +81,7 @@ class Loader {
 			array( $this, 'options_page' )
 		);
 	}
-	
+
 	/**
 	 * admin_init action hook. setting api.
 	 *
@@ -133,18 +133,18 @@ class Loader {
 	public function options_page() {
 		?>
 		<form action='options.php' method='post'>
-			
+
 			<h2>Woocommerce Elasticsearch</h2>
 			<?php
 			settings_fields( 'wpElasticsearch' );
 			do_settings_sections( 'wpElasticsearch' );
 			submit_button();
 			?>
-			
+
 		</form>
 		<?php
 	}
-	
+
 	/**
 	 * save_post action. Sync Elasticsearch.
 	 *
@@ -201,6 +201,18 @@ class Loader {
 												'type' => 'string',
 												'analyzer' => 'kuromoji',
 											),
+							'post_excerpt' => array(
+												'type' => 'string',
+												'analyzer' => 'kuromoji',
+											),
+							'post_tags' => array(
+												'type' => 'string',
+												'analyzer' => 'kuromoji',
+											),
+							'post_category' => array(
+												'type' => 'string',
+												'analyzer' => 'kuromoji',
+											),
 						);
 
 			$type->setMapping( $mapping );
@@ -209,7 +221,10 @@ class Loader {
 			foreach ( $my_posts as $p ) {
 				$d = array(
 					'post_title' => (string) $p->post_title,
-					'post_content' => (string) strip_tags( $p->post_content ),
+					'post_content' => (string) wp_strip_all_tags( $p->post_content, true ),
+					'post_excerpt' => (string) wp_strip_all_tags( $p->post_excerpt, true ),
+					'post_tags' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_tag' ) );
+					'post_cat' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_cat' ) );
 				);
 				$docs[] = $type->createDocument( (int) $p->ID, $d );
 			}
@@ -223,6 +238,16 @@ class Loader {
 			$err = new WP_Error( 'Elasticsearch Mapping Error', $e->getMessage() );
 			return $err;
 		}
+	}
+
+	private function _get_term_name_list( $terms ) {
+		if ( ! $terms ) {
+			return;
+		}
+		foreach ( $terms as $key => $value ) {
+			$term_name_list[] = $value->name;
+		}
+		return $term_name_list;
 	}
 
 	/**
@@ -246,4 +271,3 @@ class Loader {
 		return $client;
 	}
 }
-
