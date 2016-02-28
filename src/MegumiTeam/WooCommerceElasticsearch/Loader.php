@@ -265,11 +265,7 @@ class Loader {
 	private function _create_client() {
 		$options = get_option( 'wpels_settings' );
 		if ( !isset( $options['endpoint'] ) ) {
-			if ( isset( $_POST['wpels_settings']["endpoint"] ) ) {
-				$options['endpoint'] = $_POST['wpels_settings']["endpoint"];
-			} else {
-				return false;
-			}
+			return false;
 		}
 
 		if ( !isset( $options['port'] ) ) {
