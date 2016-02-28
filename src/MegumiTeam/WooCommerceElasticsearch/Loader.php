@@ -193,23 +193,23 @@ class Loader {
 			$type = $index->getType( $this->type );
 
 			$mapping = array(
-							'post_title' => array(
+							'product_title' => array(
 												'type' => 'string',
 												'analyzer' => 'kuromoji',
 											),
-							'post_content' => array(
+							'product_content' => array(
 												'type' => 'string',
 												'analyzer' => 'kuromoji',
 											),
-							'post_excerpt' => array(
+							'product_excerpt' => array(
 												'type' => 'string',
 												'analyzer' => 'kuromoji',
 											),
-							'post_tags' => array(
+							'product_tags' => array(
 												'type' => 'string',
 												'analyzer' => 'kuromoji',
 											),
-							'post_category' => array(
+							'product_category' => array(
 												'type' => 'string',
 												'analyzer' => 'kuromoji',
 											),
@@ -220,11 +220,11 @@ class Loader {
 			$docs = array();
 			foreach ( $my_posts as $p ) {
 				$d = array(
-					'post_title' => (string) $p->post_title,
-					'post_content' => (string) wp_strip_all_tags( $p->post_content, true ),
-					'post_excerpt' => (string) wp_strip_all_tags( $p->post_excerpt, true ),
-					'post_tags' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_tag' ) ),
-					'post_cat' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_cat' ) ),
+					'product_title' => (string) $p->post_title,
+					'product_content' => (string) wp_strip_all_tags( $p->post_content, true ),
+					'product_excerpt' => (string) wp_strip_all_tags( $p->post_excerpt, true ),
+					'product_tags' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_tag' ) ),
+					'product_cat' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_cat' ) ),
 				);
 				$docs[] = $type->createDocument( (int) $p->ID, $d );
 			}
@@ -264,7 +264,7 @@ class Loader {
 		if ( !isset( $options['endpoint'] ) ) {
 			return false;
 		}
-		
+
 		if ( !isset( $options['port'] ) ) {
 			$options['port'] = 80;
 		}
