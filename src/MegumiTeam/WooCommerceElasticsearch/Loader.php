@@ -143,6 +143,7 @@ class Loader {
 
 		</form>
 		<?php
+		do_action( 'wpels_after_setting_form' );
 	}
 
 	/**
