@@ -244,6 +244,8 @@ class Loader {
 		if ( ! $terms ) {
 			return;
 		}
+		
+		$term_name_list = array();
 		foreach ( $terms as $key => $value ) {
 			$term_name_list[] = $value->name;
 		}
