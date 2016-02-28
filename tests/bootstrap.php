@@ -24,7 +24,7 @@ var_dump($host);
 	$tries = 5;
 	$sleep = 3;
 	do {
-		$response = wp_remote_get( esc_url(ES_HOST) );
+		$response = wp_remote_get( esc_url(ES_HOST).':9200' );
 var_dump(esc_url(ES_HOST));
 var_dump($response);
 		if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
