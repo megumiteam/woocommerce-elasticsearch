@@ -223,8 +223,8 @@ class Loader {
 					'post_title' => (string) $p->post_title,
 					'post_content' => (string) wp_strip_all_tags( $p->post_content, true ),
 					'post_excerpt' => (string) wp_strip_all_tags( $p->post_excerpt, true ),
-					'post_tags' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_tag' ) );
-					'post_cat' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_cat' ) );
+					'post_tags' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_tag' ) ),
+					'post_cat' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_cat' ) ),
 				);
 				$docs[] = $type->createDocument( (int) $p->ID, $d );
 			}
