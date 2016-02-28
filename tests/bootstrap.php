@@ -13,7 +13,7 @@ function _manually_load_plugin() {
 	$host = preg_replace( '/(^https:\/\/|^http:\/\/)/is', '', $host );
 
 	if ( empty( $host ) ) {
-		$host = 'localhost';
+		$host = 'localhost:9200';
 	}
 	define( 'ES_HOST', $host );
 	
