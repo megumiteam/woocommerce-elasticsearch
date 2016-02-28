@@ -17,3 +17,6 @@ In your entry point( theme's functions.php or plugin's base file), initialize li
 
     require_once dirname( __FILE__ ) . '/vendor/autoload.php';
     MegumiTeam\WooCommerceElasticsearch\Loader::get_instance()->init();
+
+### PHPUnit
+    ES_HOST=‘example.com’ ES_PORT=‘9200’ phpunit
