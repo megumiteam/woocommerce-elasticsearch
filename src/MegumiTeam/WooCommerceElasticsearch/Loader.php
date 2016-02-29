@@ -65,6 +65,8 @@ class Loader {
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
+		
+		require_once( dirname(dirname(dirname(__DIR__))) .'/wp-cli.php' );
 	}
 
 	/**
