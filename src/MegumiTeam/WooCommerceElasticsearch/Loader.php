@@ -61,7 +61,7 @@ class Loader {
 	 * @since 0.1
 	 */
 	public function init() {
-		add_action( 'add_option', array( $this, 'data_sync' ) );
+		add_action( 'add_option', array( $this, 'add_option' ) );
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
@@ -156,7 +156,7 @@ class Loader {
 	 */
 	public function save_post( $post_id, $post ) {
 		if ( $post->post_type === 'product' ) {
-			$ret = $this->_data_sync();
+			$ret = $this->data_sync();
 			if ( is_wp_error( $ret ) ) {
 				$message = array_shift( $ret->get_error_messages( 'Elasticsearch Mapping Error' ) );
 				wp_die($message);
@@ -169,9 +169,9 @@ class Loader {
 	 *
 	 * @since 0.1
 	 */
-	public function data_sync() {
+	public function add_option() {
 		if ( isset( $_POST['wpels_settings']["endpoint"] ) ) {
-			$ret = $this->_data_sync();
+			$ret = $this->data_sync();
 			if ( is_wp_error( $ret ) ) {
 				$message = array_shift( $ret->get_error_messages( 'Elasticsearch Mapping Error' ) );
 				wp_die($message);
@@ -186,7 +186,7 @@ class Loader {
 	 * @return true or WP_Error object
 	 * @since 0.1
 	 */
-	private function _data_sync() {
+	public function data_sync() {
 		try {
 			$client = $this->_create_client();
 			if ( ! $client ) {

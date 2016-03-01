@@ -23,6 +23,7 @@ class WooCommerceElasticsearch_WP_CLI_Command extends WP_CLI_Command {
      * @subcommand setup
      */
     function setup($args, $assoc_args) {
+
     	$param = array();
     	$param['endpoint'] = preg_replace( '/(^https:\/\/|^http:\/\/)/is', '', $assoc_args['host'] );
 		$param['port']     = $assoc_args['port'];
@@ -44,16 +45,18 @@ class WooCommerceElasticsearch_WP_CLI_Command extends WP_CLI_Command {
 			exit;
 		}
 
-		add_option( 'wpels_settings', $param);
+		update_option( 'wpels_settings', $param);
 		
 		try {
-			\MegumiTeam\WooCommerceElasticsearch\Loader::get_instance()->data_sync();
+			if ( !\MegumiTeam\WooCommerceElasticsearch\Loader::get_instance()->data_sync() ) {
+				WP_CLI::error('Elasticsearch built index failed.');
+			}
 		} catch(Exception $e) {
 			WP_CLI::error($e->getMessage());
 			exit;
 		}
 		
-        \WP_CLI::success( "Elasticsearch built index completed." );
+        WP_CLI::success( "Elasticsearch built index completed." );
         
     }
 }
