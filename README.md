@@ -19,6 +19,20 @@ In your entry point( theme's functions.php or plugin's base file), initialize li
 
     require_once dirname( __FILE__ ) . '/vendor/autoload.php';
     MegumiTeam\WooCommerceElasticsearch\Loader::get_instance()->init();
+    
+    //get Elasticsearch client
+    MegumiTeam\WooCommerceElasticsearch\Loader::get_instance()->client;
+    
+    //get type
+    MegumiTeam\WooCommerceElasticsearch\Loader::get_instance()->type;
+    
+    //get index
+    MegumiTeam\WooCommerceElasticsearch\Loader::get_instance()->index;
+    
+    
 
 ### PHPUnit
     ES_HOST=‘example.com’ ES_PORT=‘9200’ phpunit
+    
+### WP-CLI
+    wp elasticsearch setup --host=example.com --port=9200
