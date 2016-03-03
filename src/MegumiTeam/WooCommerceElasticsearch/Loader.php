@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Woocommerce Elasticsearch
+ * Plugin Name: Elasticommerce Services
  * Version: 0.1
  * Description: WordPress search replace Elasticsearch
  * Author: horike
@@ -65,7 +65,7 @@ class Loader {
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
-		
+
 		require_once( dirname(dirname(dirname(__DIR__))) .'/wp-cli.php' );
 	}
 
@@ -76,8 +76,8 @@ class Loader {
 	 */
 	public function admin_menu() {
 		add_options_page(
-			'Woocommerce Elasticsearch',
-			'Woocommerce Elasticsearch',
+			'Elasticommerce Services',
+			'Elasticommerce Services',
 			'manage_options',
 			'wp_elasticsearch',
 			array( $this, 'options_page' )
@@ -136,7 +136,8 @@ class Loader {
 		?>
 		<form action='options.php' method='post'>
 
-			<h2>Woocommerce Elasticsearch</h2>
+			<h2>Elasticommerce Services</h2>
+			<h3>Set Endpoint</h3>
 			<?php
 			settings_fields( 'wpElasticsearch' );
 			do_settings_sections( 'wpElasticsearch' );
