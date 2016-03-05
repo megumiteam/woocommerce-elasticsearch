@@ -61,7 +61,7 @@ class Loader {
 	 * @since 0.1
 	 */
 	public function init() {
-		add_action( 'add_option', array( $this, 'add_option' ) );
+		add_action( 'added_option', array( $this, 'added_option' ) );
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
@@ -156,7 +156,7 @@ class Loader {
 	 * @since 0.1
 	 */
 	public function save_post( $post_id, $post ) {
-		if ( $post->post_type === 'product' ) {
+		if ( !empty($_POST) && $post->post_type === 'product' ) {
 			$ret = $this->data_sync();
 			if ( is_wp_error( $ret ) ) {
 				$message = array_shift( $ret->get_error_messages( 'Elasticsearch Mapping Error' ) );
@@ -170,7 +170,7 @@ class Loader {
 	 *
 	 * @since 0.1
 	 */
-	public function add_option() {
+	public function added_option() {
 		if ( isset( $_POST['wpels_settings']["endpoint"] ) ) {
 			$ret = $this->data_sync();
 			if ( is_wp_error( $ret ) ) {
@@ -188,63 +188,59 @@ class Loader {
 	 * @since 0.1
 	 */
 	public function data_sync() {
-		try {
-			$client = $this->_create_client();
-			if ( ! $client ) {
-				throw new Exception( 'Couldn\'t make Elasticsearch Client. Parameter is not enough.' );
-			}
-
-			$index = $client->getIndex( $this->index );
-
-			$index->create( array(), true );
-			$type = $index->getType( $this->type );
-
-			$mapping = array(
-							'product_title' => array(
-												'type' => 'string',
-												'analyzer' => 'kuromoji',
-											),
-							'product_content' => array(
-												'type' => 'string',
-												'analyzer' => 'kuromoji',
-											),
-							'product_excerpt' => array(
-												'type' => 'string',
-												'analyzer' => 'kuromoji',
-											),
-							'product_tags' => array(
-												'type' => 'string',
-												'analyzer' => 'kuromoji',
-											),
-							'product_category' => array(
-												'type' => 'string',
-												'analyzer' => 'kuromoji',
-											),
-						);
-
-			$type->setMapping( $mapping );
-			$my_posts = get_posts( array( 'posts_per_page' => -1, 'post_type' => 'product' ) );
-			$docs = array();
-			foreach ( $my_posts as $p ) {
-				$d = array(
-					'product_title' => (string) $p->post_title,
-					'product_content' => (string) wp_strip_all_tags( $p->post_content, true ),
-					'product_excerpt' => (string) wp_strip_all_tags( $p->post_excerpt, true ),
-					'product_tags' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_tag' ) ),
-					'product_cat' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_cat' ) ),
-				);
-				$docs[] = $type->createDocument( (int) $p->ID, $d );
-			}
-			$bulk = new Bulk( $client );
-			$bulk->setType( $type );
-			$bulk->addDocuments( $docs );
-			$bulk->send();
-
-			return true;
-		} catch (Exception $e) {
-			$err = new WP_Error( 'Elasticsearch Mapping Error', $e->getMessage() );
-			return $err;
+		$client = $this->_create_client();
+		if ( ! $client ) {
+		    return new WP_Error( 'Elasticsearch Mapping Error', $e->getMessage() );
 		}
+
+		$index = $client->getIndex( $this->index );
+
+		$index->create( array(), true );
+		$type = $index->getType( $this->type );
+
+		$mapping = array(
+		    			'product_title' => array(
+		    								'type' => 'string',
+		    								'analyzer' => 'kuromoji',
+		    							),
+		    			'product_content' => array(
+		    								'type' => 'string',
+		    								'analyzer' => 'kuromoji',
+		    							),
+		    			'product_excerpt' => array(
+		    								'type' => 'string',
+		    								'analyzer' => 'kuromoji',
+		    							),
+		    			'product_tags' => array(
+		    								'type' => 'string',
+		    								'analyzer' => 'kuromoji',
+		    							),
+		    			'product_category' => array(
+		    								'type' => 'string',
+		    								'analyzer' => 'kuromoji',
+		    							),
+		    		);
+
+		$type->setMapping( $mapping );
+		$my_posts = get_posts( array( 'posts_per_page' => -1, 'post_type' => 'product' ) );
+
+		$docs = array();
+		foreach ( $my_posts as $p ) {
+		    $d = array(
+		    	'product_title' => (string) $p->post_title,
+		    	'product_content' => (string) wp_strip_all_tags( $p->post_content, true ),
+		    	'product_excerpt' => (string) wp_strip_all_tags( $p->post_excerpt, true ),
+		    	'product_tags' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_tag' ) ),
+		    	'product_cat' => $this->_get_term_name_list( get_the_terms( $p->ID, 'product_cat' ) ),
+		    );
+		    $docs[] = $type->createDocument( (int) $p->ID, $d );
+		}
+		$bulk = new Bulk( $client );
+		$bulk->setType( $type );
+		$bulk->addDocuments( $docs );
+		$bulk->send();
+
+		return true;
 	}
 
 	private function _get_term_name_list( $terms ) {
@@ -268,6 +264,7 @@ class Loader {
 	 */
 	private function _create_client() {
 		$options = get_option( 'wpels_settings' );
+
 		if ( !isset( $options['endpoint'] ) ) {
 			return false;
 		}
