@@ -190,7 +190,7 @@ class Loader {
 	public function data_sync() {
 		$client = $this->_create_client();
 		if ( ! $client ) {
-		    return new WP_Error( 'Elasticsearch Mapping Error', $e->getMessage() );
+		    return new \WP_Error( 'Elasticsearch Mapping Error', 'Elasticsearch failed to create client.' );
 		}
 
 		$index = $client->getIndex( $this->index );
@@ -223,6 +223,9 @@ class Loader {
 
 		$type->setMapping( $mapping );
 		$my_posts = get_posts( array( 'posts_per_page' => -1, 'post_type' => 'product' ) );
+		if ( empty($my_posts) ) {
+		    return new \WP_Error( 'Elasticsearch Mapping Error', 'Products not exist.' );
+		}
 
 		$docs = array();
 		foreach ( $my_posts as $p ) {
