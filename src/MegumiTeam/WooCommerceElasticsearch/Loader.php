@@ -141,6 +141,7 @@ class Loader {
 			<?php
 			settings_fields( 'wpElasticsearch' );
 			do_settings_sections( 'wpElasticsearch' );
+			do_action( 'wpels_inner_setting_form' );
 			submit_button();
 			?>
 
