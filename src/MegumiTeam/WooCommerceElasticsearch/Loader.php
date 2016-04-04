@@ -99,7 +99,7 @@ class Loader {
 		);
 		add_settings_field(
 			'endpoint',
-			__( 'Endpoint', 'wp-elasticsearch' ),
+			__( 'Elasticsearch Endpoint', 'wp-elasticsearch' ),
 			array( $this, 'endpoint_render' ),
 			'wpElasticsearch',
 			'wpels_wpElasticsearch_section'
