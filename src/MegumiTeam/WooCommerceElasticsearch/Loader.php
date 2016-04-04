@@ -172,7 +172,7 @@ class Loader {
 	 * @since 0.1
 	 */
 	public function added_option() {
-		if ( isset( $_POST['wpels_settings']["endpoint"] ) ) {
+		if ( isset( $_POST['wpels_settings']["endpoint"] ) && !empty( $_POST['wpels_settings']["endpoint"] ) ) {
 			$ret = $this->data_sync();
 			if ( is_wp_error( $ret ) ) {
 				$message = array_shift( $ret->get_error_messages( 'Elasticsearch Mapping Error' ) );
